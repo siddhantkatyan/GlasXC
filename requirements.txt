@@ -2,4 +2,4 @@ scikit-learn==0.20.0
 numpy==1.15.3
 matplotlib==3.0.1
 scipy==1.1.0
-PyYAML==3.13
+PyYAML==5.1 
