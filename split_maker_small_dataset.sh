@@ -1,15 +1,15 @@
 #!/bin/bash
 
-if [ "$#" != "4" ] ; then
-    echo "Arguments to the script: path to train split file, path to test split file, 
-          path to full dataset file where all rows are datapoints, dataset name"
-    exit 1
-fi
+#if [ "$#" != "4" ] ; then
+#    echo "Arguments to the script: path to train split file, path to test split file, 
+#          path to full dataset file where all rows are datapoints, dataset name"
+#    exit 1
+#fi
 
-train_split_src=$1
-test_split_src=$2
-full_dataset_src=$3
-dataset_name=$(dirname "$full_dataset_src")"/$4"
+train_split_src=/home/siddhant.katyan/XML/GlasXC/data/Delicious/delicious_trSplit.txt
+test_split_src=/home/siddhant.katyan/XML/GlasXC/data/Delicious/delicious_tstSplit.txt
+full_dataset_src=/home/siddhant.katyan/XML/GlasXC/data/Delicious/Delicious_data.txt
+dataset_name="Delicious"
 
 echo $dataset_name
 
