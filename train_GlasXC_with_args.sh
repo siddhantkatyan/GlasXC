@@ -1,7 +1,7 @@
 #!/bin/bash
 
-dataset_name=Eurlex
-all_dataset_names=( "Bibtex" "Delicious" "Mediamill" "Eurlex" )
+dataset_name=RCV1-x
+all_dataset_names=( "Bibtex" "Delicious" "Mediamill" "Eurlex" "RCV1-x")
 val=0
 for name in ${all_dataset_names[*]};
     do
@@ -15,8 +15,8 @@ if [ "$val" == 0 ] ; then
     exit 1
 fi
 
-setup_path="/home/siddhant.katyan/XML/GlasXC/setups/Eurlex"
-data_root="/home/siddhant.katyan/XML/GlasXC/data/Eurlex"
+setup_path="/home/siddhant.katyan/XML/GlasXC/setups/RCV1-x"
+data_root="/home/siddhant.katyan/XML/GlasXC/data/RCV1-x"
 dataset_info="dataset_info.yml"
 inp_enc_cfg="input_encoder_cfg.yml"
 inp_dec_cfg="input_decoder_cfg.yml"
@@ -30,10 +30,10 @@ opt_cfg="opt.yml"
 # device -> PyTorch device string
 # epochs -> Number of epochs
 device='cpu'
-epochs=2
+epochs=10
 
 # This are static, feel free to change them as required
-batch_size=64
+batch_size=1024
 inp_ae_wgt=0
 otp_ae_wgt=0
 seed=1729

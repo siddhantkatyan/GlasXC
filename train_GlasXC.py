@@ -152,10 +152,10 @@ OTP_REC_LOSS = []
 CLASS_LOSS = []
 AVG_P_AT_K = []
 AVG_NDCG_AT_K = []
-LAMBDA = 21
+LAMBDA = 10
 mean = 0.5
-div = 1/math.pow(3993,2)
-epsilon = 10e-5
+div = 1/math.pow(2456,2)
+#epsilon = 10e-5                # Use only for Eurlex because Z becomes singular
 
 for epoch in range(args.epochs):
     cur_no = 0
@@ -165,14 +165,14 @@ for epoch in range(args.epochs):
         cur_no += x.size(0)
 
         optimizer.zero_grad()
-        inp_ae_fp, out_ae_fp, reg_fp = Glas_XC(x, y)
+        inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
 
 		# Build GLAS Regularizer	
 
         v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
         V  = torch.mm(v, v.t())               # co-occurence in the latent/embedded space
         A  = torch.mm(y, y.t())  			  # models co-occurence of labels
-        Z  = torch.diag(A) + epsilon       			  # returns the diagoan in vector form
+        Z  = torch.diag(A)  #+ epsilon        # returns the diagoan in vector form
         Z  = torch.diag(Z)       			  # creates the diagonal from the vector
         AZ = torch.add(torch.mm(A, torch.inverse(Z)), torch.mm(torch.inverse(Z), A))
         M  = mean*AZ            			  # Mean of conditional frequencies of label
@@ -191,21 +191,17 @@ for epoch in range(args.epochs):
         # 2. Reconstruction error of output
         # 3. Classification (Binary cross entropy) of input-output
         # The first two are weighted using ALPHA_INPUT and ALPHA_OUTPUT.
-        loss_inp_rec = F.mse_loss(inp_ae_fp, x)
-        loss_otp_rec = F.mse_loss(out_ae_fp, y)
+
         #loss_class = F.multilabel_margin_loss(reg_fp, y)
         loss_class = F.binary_cross_entropy(reg_fp, y) + LAMBDA * loss_glas
-        net_loss = ALPHA_INPUT * loss_inp_rec + ALPHA_OUTPUT * loss_otp_rec + loss_class
+        net_loss = loss_class
         net_loss.backward()
         optimizer.step()
         all_iters += 1
         if all_iters % args.interval == 0:
-            print("{} / {} :: {} / {} - INP_REC_LOSS : {}\tOTP_REC_LOSS : {}\tCLASS_LOSS : {}"
-                  .format(epoch, args.epochs, cur_no, len_loader,
-                          round(loss_inp_rec.item(), 5), round(loss_otp_rec.item(), 5),
-                          round(loss_class.item(), 5)))
-        INP_REC_LOSS.append(loss_inp_rec.item())
-        OTP_REC_LOSS.append(loss_otp_rec.item())
+            print("{} / {} :: {} / {} - CLASS_LOSS : {}"
+                  .format(epoch, args.epochs, cur_no, len_loader,round(loss_class.item(), 5)))
+        
         CLASS_LOSS.append(loss_class.item())
 
     pred_y = []
@@ -233,25 +229,17 @@ if args.plot:
     ax1 = plt.subplot(gridspec[0, :2])
     ax2 = plt.subplot(gridspec[0, 2:4])
     ax3 = plt.subplot(gridspec[0, 4:])
-    ax4 = plt.subplot(gridspec[1:3, 1:5])
-    ax5 = plt.subplot(gridspec[3, :3])
-    ax6 = plt.subplot(gridspec[3, 3:])
+    #ax4 = plt.subplot(gridspec[1:3, 1:5])
+    #ax5 = plt.subplot(gridspec[3, :3])
+    #ax6 = plt.subplot(gridspec[3, 3:])
 
-    ax1.plot(list(range(1, all_iters + 1)), INP_REC_LOSS, 'r', linewidth=2.0)
-    ax1.set_title('Input reconstruction loss : weight = {}'.format(ALPHA_INPUT))
-    ax2.plot(list(range(1, all_iters + 1)), OTP_REC_LOSS, 'g', linewidth=2.0)
-    ax2.set_title('Output reconstruction loss : weight = {}'.format(ALPHA_OUTPUT))
-    ax3.plot(list(range(1, all_iters + 1)), CLASS_LOSS, 'b', linewidth=2.0)
-    ax3.set_title('Classification loss')
-    ax4.plot(list(range(1, all_iters + 1)),
-             [ALPHA_INPUT * irl + ALPHA_OUTPUT * orl + cl
-              for (irl, orl, cl) in zip(INP_REC_LOSS, OTP_REC_LOSS, CLASS_LOSS)],
-             'k', linewidth=3.0)
-    ax4.set_title('All losses')
-    ax5.plot(list(range(1, args.epochs + 1)), AVG_P_AT_K, 'g', linewidth=2.0)
-    ax5.set_title('Average Precision at {} (over all datapoints) with epochs'.format(K))
-    ax6.plot(list(range(1, args.epochs + 1)), AVG_NDCG_AT_K, 'b', linewidth=2.0)
-    ax6.set_title('Average NDCG at {} (over all datapoints) with epochs'.format(K))
+    
+    ax1.plot(list(range(1, all_iters + 1)), CLASS_LOSS, 'b', linewidth=2.0)
+    ax1.set_title('Classification loss')
+    ax2.plot(list(range(1, args.epochs + 1)), AVG_P_AT_K, 'g', linewidth=2.0)
+    ax2.set_title('Average Precision at {} (over all datapoints) with epochs'.format(K))
+    ax3.plot(list(range(1, args.epochs + 1)), AVG_NDCG_AT_K, 'b', linewidth=2.0)
+    ax3.set_title('Average NDCG at {} (over all datapoints) with epochs'.format(K))
     plt.show()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Save your model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
