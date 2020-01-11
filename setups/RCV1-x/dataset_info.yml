@@ -1,0 +1,11 @@
+train_filename: rcv1x_train.txt
+train_opts:
+  num_data_points: 623847
+  input_dims: 47236
+  output_dims: 2456
+
+test_filename: rcv1x_test.txt
+test_opts:
+  num_data_points: 155962
+  input_dims: 47236
+  output_dims: 2456
