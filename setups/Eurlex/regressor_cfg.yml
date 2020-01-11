@@ -10,4 +10,4 @@
     in_features: 325
     out_features: 141
 
-- name: Tanh
+- name: Sigmoid

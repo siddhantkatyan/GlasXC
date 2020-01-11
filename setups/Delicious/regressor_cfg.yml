@@ -10,4 +10,4 @@
     in_features: 104
     out_features: 82
 
-- name: Tanh
+- name: ReLU
