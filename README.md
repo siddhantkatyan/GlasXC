@@ -1,6 +1,6 @@
 # [GlasXC](https://github.com/pyschedelicsid/GlasXC) 
 
-`GlasXC` is an implementation of paper `Breaking the Glass Ceiling for Embedding-BasedClassifiers for Large Output Spaces - NIPS'19` in Pytorch:
+`GlasXC` is an implementation of paper `Breaking the Glass Ceiling for Embedding-Based Classifiers for Large Output Spaces - NIPS'19` in Pytorch:
 
 - **GlasXC**: is for solving the extreme classification using simple Deep Learning architecture + GLAS Regularizer
 
