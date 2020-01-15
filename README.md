@@ -128,8 +128,6 @@ test_opts:
   output_dims: 159
 ```
 
-## License
-This code is provided under the [MIT License](LICENSE).
 
 ---
 Written By: Siddhant Katyan
