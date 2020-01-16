@@ -1,0 +1,31 @@
+==========================================
+SLURM_JOB_ID = 80477
+SLURM_NODELIST = gnode34
+SLURM_JOB_GPUS = 
+==========================================
+[3;J[H[2J10
+train_GlasXC.py:109: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  input_enc_cfg = yaml.load(open(args.input_encoder_cfg))
+train_GlasXC.py:110: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  input_dec_cfg = yaml.load(open(args.input_decoder_cfg))
+train_GlasXC.py:111: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  output_enc_cfg = yaml.load(open(args.output_encoder_cfg))
+train_GlasXC.py:112: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  output_dec_cfg = yaml.load(open(args.output_decoder_cfg))
+train_GlasXC.py:113: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  regress_cfg = yaml.load(open(args.regressor_cfg))
+train_GlasXC.py:122: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  opt_options = yaml.load(open(args.optimizer_cfg))
+train_GlasXC.py:132: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  dset_opts = yaml.load(open(args.dataset_info))
+0 / 10 :: Precision at 1: 0.0002574168221893301	NDCG at 1: 0.0002574168221893301
+1 / 10 :: 4096 / 15539 - CLASS_LOSS : 0.70037
+1 / 10 :: Precision at 1: 0.0002574168221893301	NDCG at 1: 0.0002574168221893301
+2 / 10 :: 8192 / 15539 - CLASS_LOSS : 0.68451
+2 / 10 :: Precision at 1: 0.00019306261664199756	NDCG at 1: 0.00019306261664199756
+3 / 10 :: 12288 / 15539 - CLASS_LOSS : 0.66843
+3 / 10 :: Precision at 1: 0.00019306261664199756	NDCG at 1: 0.00019306261664199756
+4 / 10 :: 15539 / 15539 - CLASS_LOSS : 0.64244
+4 / 10 :: Precision at 1: 0.00019306261664199756	NDCG at 1: 0.00019306261664199756
+5 / 10 :: Precision at 1: 0.0002574168221893301	NDCG at 1: 0.0002574168221893301
+6 / 10 :: 4096 / 15539 - CLASS_LOSS : 0.6267

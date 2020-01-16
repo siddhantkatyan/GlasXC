@@ -1,0 +1,16 @@
+README.md
+setup.cfg
+setup.py
+GlasXC.egg-info/PKG-INFO
+GlasXC.egg-info/SOURCES.txt
+GlasXC.egg-info/dependency_links.txt
+GlasXC.egg-info/requires.txt
+GlasXC.egg-info/top_level.txt
+GlasXC.egg-info/zip-safe
+XMC/__init__.py
+XMC/GlasXC/GlasXC.py
+XMC/GlasXC/__init__.py
+XMC/loaders/__init__.py
+XMC/loaders/loader_libsvm.py
+XMC/metrics/__init__.py
+XMC/metrics/metrics.py
