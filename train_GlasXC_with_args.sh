@@ -1,22 +1,22 @@
 #!/bin/bash
 
-dataset_name=RCV1-x
-all_dataset_names=( "Bibtex" "Delicious" "Mediamill" "Eurlex" "RCV1-x")
-val=0
-for name in ${all_dataset_names[*]};
-    do
-        if [ "$name" == "$dataset_name" ] ; then
-            val=1
-        fi
-    done
+#dataset_name=RCV1-x
+#all_dataset_names=( "Bibtex" "Delicious" "Mediamill" "Eurlex" "RCV1-x")
+#val=0
+#for name in ${all_dataset_names[*]};
+#   do
+#        if [ "$name" == "$dataset_name" ] ; then
+#            val=1
+#        fi
+#    done
 
-if [ "$val" == 0 ] ; then
-    echo "Invalid dataset name specified"
-    exit 1
-fi
+#if [ "$val" == 0 ] ; then
+#    echo "Invalid dataset name specified"
+#    exit 1
+#fi
 
-setup_path="/home/siddhant.katyan/XML/GlasXC/setups/RCV1-x"
-data_root="/home/siddhant.katyan/XML/GlasXC/data/RCV1-x"
+setup_path="/home/shrutimoy.das/GlasXC/setups/Eurlex"
+data_root="/home/shrutimoy.das/Extreme_Classification/Dataset/Eurlex"
 dataset_info="dataset_info.yml"
 inp_enc_cfg="input_encoder_cfg.yml"
 inp_dec_cfg="input_decoder_cfg.yml"
