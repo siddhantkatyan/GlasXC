@@ -94,6 +94,9 @@ USE_CUDA = cur_device.type == 'cuda'
 if USE_CUDA and not torch.cuda.is_available():
     raise ValueError("You can't use CUDA if you don't have CUDA")
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Check Num of CPU's~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+print(torch.get_num_threads())
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Reproducibility ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if args.seed is not None:
@@ -174,7 +177,7 @@ for epoch in range(args.epochs):
         A  = torch.mm(y, y.t())  			  # models co-occurence of labels
         Z  = torch.diag(A)  #+ epsilon        # returns the diagoan in vector form
         Z  = torch.diag(Z)       			  # creates the diagonal from the vector
-        AZ = torch.add(torch.mm(A, torch.inverse(Z)), torch.mm(torch.inverse(Z), A))
+        AZ = torch.add(torch.mm(A, torch.pinverse(Z)), torch.mm(torch.pinverse(Z), A))
         M  = mean*AZ            			  # Mean of conditional frequencies of label
         g  = torch.sub(V, M)    			  	
         gl = torch.norm(g, p='fro')

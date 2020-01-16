@@ -43,7 +43,8 @@ init_scheme="xavier_uniform"
 
 for k in ${all_k[*]};
     do
-        python train_GlasXC.py --data_root $data_root --dataset_info "$setup_path/$dataset_info" \
+       # added -u for printing to SLURM output file
+        python -u train_GlasXC.py --data_root $data_root --dataset_info "$setup_path/$dataset_info" \
                                  --input_encoder_cfg "$setup_path/$inp_enc_cfg" --input_decoder_cfg "$setup_path/$inp_dec_cfg" \
                                  --output_encoder_cfg "$setup_path/$otp_enc_cfg" --output_decoder_cfg "$setup_path/$otp_dec_cfg" \
                                  --regressor_cfg "$setup_path/$reg_cfg" --device $device --epochs $epochs --batch_size $batch_size \
