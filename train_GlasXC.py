@@ -170,8 +170,8 @@ for epoch in range(args.epochs):
 		# Build GLAS Regularizer	
 
         v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
-        V  = torch.mm(v, v.t())               # co-occurence in the latent/embedded space
-        A  = torch.mm(y, y.t())  			  # models co-occurence of labels
+        V  = torch.mm(v.t(), v)               # co-occurence in the latent/embedded space
+        A  = torch.mm(y.t(), y)  			  # models co-occurence of labels
         Z  = torch.diag(A)  #+ epsilon        # returns the diagoan in vector form
         Z  = torch.diag(Z)       			  # creates the diagonal from the vector
         AZ = torch.add(torch.mm(A, torch.inverse(Z)), torch.mm(torch.inverse(Z), A))
