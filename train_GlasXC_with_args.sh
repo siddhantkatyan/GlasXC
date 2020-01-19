@@ -29,15 +29,16 @@ opt_cfg="opt.yml"
 # Please specify the options below
 # device -> PyTorch device string
 # epochs -> Number of epochs
-device='cpu'
+device='cpu' # 'cuda' for GPU, 'cpu' for CPU
 epochs=10
 
 # This are static, feel free to change them as required
-batch_size=1024
+batch_size=32 # 4096 for AmazonCat-13K as given in paper(Glas)
 inp_ae_wgt=0
 otp_ae_wgt=0
 seed=1729
-all_k=( 1 3 5 )
+#all_k=( 1 3 5 )
+all_k=( 1 )
 interval=20
 init_scheme="xavier_uniform"
 

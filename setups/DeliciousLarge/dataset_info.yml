@@ -1,0 +1,11 @@
+train_filename: deliciousLarge_train.txt
+train_opts:
+  num_data_points: 196606
+  input_dims: 782585
+  output_dims: 205443
+
+test_filename: deliciousLarge_test.txt
+test_opts:
+  num_data_points: 100095
+  input_dims: 782585
+  output_dims: 205443

@@ -1,0 +1,7 @@
+- name: Linear
+  kwargs:
+    in_features: 782585
+    out_features: 2000
+
+- name: Sigmoid
+

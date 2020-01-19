@@ -1,0 +1,6 @@
+- name: Linear
+  kwargs:
+    in_features: 2000
+    out_features: 1024
+
+- name: ReLU

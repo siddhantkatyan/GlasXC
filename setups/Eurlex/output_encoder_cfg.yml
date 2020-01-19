@@ -1,17 +1,8 @@
 - name: Linear
   kwargs:
     in_features: 3993
-    out_features: 1331
+    out_features: 150
 
 
-- name: Linear
-  kwargs:
-    in_features: 1331
-    out_features: 443
-
-- name: Linear
-  kwargs:
-    in_features: 443
-    out_features: 141
 
 

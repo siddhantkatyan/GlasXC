@@ -95,7 +95,8 @@ if USE_CUDA and not torch.cuda.is_available():
     raise ValueError("You can't use CUDA if you don't have CUDA")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Check Num of CPU's~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-print(torch.get_num_threads())
+print("No of threads : ",torch.get_num_threads())
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Reproducibility ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -157,33 +158,42 @@ AVG_P_AT_K = []
 AVG_NDCG_AT_K = []
 LAMBDA = 10
 mean = 0.5
-div = 1/math.pow(2456,2)
+
 #epsilon = 10e-5                # Use only for Eurlex because Z becomes singular
 
 for epoch in range(args.epochs):
+    #print("In epoch ",epoch)
     cur_no = 0
     for x, y in iter(train_data_loader):
         x = x.to(device=cur_device, dtype=torch.float)
         y = y.to(device=cur_device, dtype=torch.float)
         cur_no += x.size(0)
+        div = 1/math.pow(y.size(1),2) # different for different datasets
+        #print("In epoch ",epoch," size of x is ",x.size())
+        #print("In epoch ",epoch," size of y is ",y.size())
 
         optimizer.zero_grad()
-        inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
-
+        inp_ae_fp, out_ae_fp, reg_fp, decoder_weight_mat = Glas_XC.forward(x, y)
+        #print("Size of reg_fp is : ", reg_fp.size())
+        #print("Size of decoder weight is : ", decoder_weight_mat.size())
+        print(type(decoder_weight_mat[1,1]))
 		# Build GLAS Regularizer	
 
-        v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
+        v  = Glas_XC.decode_output(reg_fp)    # Label Embedding Matrix for mini-batch
+        print("Size of output decoder is : ", v.size())
+
         V  = torch.mm(v, v.t())               # co-occurence in the latent/embedded space
         A  = torch.mm(y, y.t())  			  # models co-occurence of labels
         Z  = torch.diag(A)  #+ epsilon        # returns the diagoan in vector form
         Z  = torch.diag(Z)       			  # creates the diagonal from the vector
-        AZ = torch.add(torch.mm(A, torch.pinverse(Z)), torch.mm(torch.pinverse(Z), A))
+        #AZ = torch.add(torch.mm(A, torch.pinverse(Z)), torch.mm(torch.pinverse(Z), A)) # to be used for Eurlex4k
+        AZ = torch.add(torch.mm(A, torch.inverse(Z)), torch.mm(torch.inverse(Z), A))
         M  = mean*AZ            			  # Mean of conditional frequencies of label
         g  = torch.sub(V, M)    			  	
         gl = torch.norm(g, p='fro')
         loss_glas = div * gl*gl                  # final loss of glas regularizer 
 
-
+        #print("loss glas regularizer created")
 
        # print("The size of encoded output label is")
        # print(V.size())
@@ -198,7 +208,8 @@ for epoch in range(args.epochs):
         #loss_class = F.multilabel_margin_loss(reg_fp, y)
         loss_class = F.binary_cross_entropy(reg_fp, y) + LAMBDA * loss_glas
         net_loss = loss_class
-        net_loss.backward()
+        net_loss.backward() 
+        print("Backprop for epoch ", epoch, " done")
         optimizer.step()
         all_iters += 1
         if all_iters % args.interval == 0:
@@ -243,7 +254,8 @@ if args.plot:
     ax2.set_title('Average Precision at {} (over all datapoints) with epochs'.format(K))
     ax3.plot(list(range(1, args.epochs + 1)), AVG_NDCG_AT_K, 'b', linewidth=2.0)
     ax3.set_title('Average NDCG at {} (over all datapoints) with epochs'.format(K))
-    plt.show()
+    #plt.show()
+    plt.savefig('prec_plots.png')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Save your model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -77,11 +77,13 @@ class GlasXC(nn.Module):
             y : This is a tensor of multi-hot outputs (batched)
 
         Returns:
-            As described above - 3-tuple
+            As described above - 4-tuple
         """
+
         ret_tup = (self.decode_input(self.encode_input(x)),
                    self.decode_output(self.encode_output(y)),
-                   self.predict(x))
+                   self.predict(x),
+                   self.decode_output_weight(self.encode_output(y)))
         return ret_tup
 
     def encode_input(self, x):
@@ -130,7 +132,49 @@ class GlasXC(nn.Module):
         Returns:
             Reconstruction of multi-hot encoding of outputs
         """
+        """
+        for name, module in self.output_decoder.named_modules():
+            print("name : ",name)
+            print("module : ", module)
+            print("Size of the decoder weight matrix is : ",module[0].weight.size())
+            #decode_weight_matrix = module[0].weight.size()
+        
+        #print("Size of the decoder weight matrix is : ",self.output_decoder.Linear)
+        print(self.output_decoder.parameters())
+        """
+
         return self.output_decoder(enc_y)
+
+    def decode_output_weight(self, enc_y):
+        """
+        Function to return the decoding of encoded output using the output decoder
+        This will work only of the decoder has one layer
+
+        Args:
+            x : This is a tensor of output encodings (batched)
+
+        Returns:
+            Weight matrix of the decode layer
+        """
+        """
+        for name, module in self.output_decoder.named_modules():
+            print("name : ",name)
+            print("module : ",type(module[0]))
+            #print("Size of the decoder weight matrix is : ",module[0].weight.size())
+            decode_weight_matrix = module[0].weight.size()
+        """
+
+        for layer in self.output_decoder.modules():
+            #print("Layer type  : ",type(layer))
+            #print("Layer : ",layer)
+            if isinstance(layer, nn.Linear):
+                #print(layer.weight)
+                #print("Layer weight size : ",layer.weight.size())
+                decode_weight_matrix = layer.weight
+
+        return decode_weight_matrix
+
+
 
     def predict(self, x):
         """

@@ -1,0 +1,11 @@
+train_filename: amazon_train.txt
+train_opts:
+  num_data_points: 490449
+  input_dims: 135909
+  output_dims: 670091
+
+test_filename: bibtex_test.txt
+test_opts:
+  num_data_points: 153025
+  input_dims: 135909
+  output_dims: 670091

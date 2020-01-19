@@ -7,24 +7,13 @@
   kwargs:
     num_features: 2500
 
-- name: ReLU
-  kwargs:
-    inplace: True
 
 - name: Linear
   kwargs:
     in_features: 2500
-    out_features: 1250
+    out_features: 150
 
 - name: BatchNorm1d
   kwargs:
-    num_features: 1250
+    num_features: 150
 
-- name: ReLU
-  kwargs:
-    inplace: True
-
-- name: Linear
-  kwargs:
-    in_features: 1250
-    out_features: 500

@@ -1,7 +1,8 @@
 #!/bin/bash
 #SBATCH -A research
 #SBATCH --qos=medium
-#SBATCH -n 10
+#SBATCH -n 40
+#SBATCH --gres=gpu:4
 #SBATCH -p long
 #SBATCH --mem-per-cpu=3000
 #SBATCH --time=04-00:00:00
