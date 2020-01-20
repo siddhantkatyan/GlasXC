@@ -173,18 +173,37 @@ for epoch in range(args.epochs):
         #print("In epoch ",epoch," size of y is ",y.size())
 
         optimizer.zero_grad()
+
         inp_ae_fp, out_ae_fp, reg_fp, decoder_weight_mat = Glas_XC.forward(x, y)
         #print("Size of reg_fp is : ", reg_fp.size())
         #print("Size of decoder weight is : ", decoder_weight_mat.size())
         print(type(decoder_weight_mat[1,1]))
 		# Build GLAS Regularizer	
 
-<
+
         v  = Glas_XC.decode_output(reg_fp)    # Label Embedding Matrix for mini-batch
         print("Size of output decoder is : ", v.size())
 
         V  = torch.mm(v, v.t())               # co-occurence in the latent/embedded space
         A  = torch.mm(y, y.t())  			  # models co-occurence of labels
+
+
+        inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
+
+	# Build GLAS Regularizer
+	
+	# Sampling the Label Matrix - Start
+
+	valid_idx = torch.nonzero(y)  # get all the non zeros
+	t = torch.flatten(valid_idx)  # flatten the tuple into a list tensor	
+	t1 = t[1::2].unique()  	      # index of non zero column is at odd postion elements, get the unique column indices
+	t2 = t1.numpy()		      # convert tensor to numpy array for uniform random sampling, no counterpart function in Pytorch
+	t3 = numpy.random.choice(t2, batch_size, replace=False)  # random sampling values of array without replacement
+	indices = torch.from_numpy(y)    			 # Final Sampled label indexs
+	y_sampled = torch.index_select(y, 1, indices)  #indexes the input tensor along column using the entries in indices
+	
+	# Sampling the Label matrix per batch done!
+	
 
         v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
         V  = torch.mm(v.t(), v)               # co-occurence in the latent/embedded space
