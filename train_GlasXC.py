@@ -199,7 +199,7 @@ for epoch in range(args.epochs):
 	t1 = t[1::2].unique()  	      # index of non zero column is at odd postion elements, get the unique column indices
 	t2 = t1.numpy()		      # convert tensor to numpy array for uniform random sampling, no counterpart function in Pytorch
 	t3 = numpy.random.choice(t2, batch_size, replace=False)  # random sampling values of array without replacement
-	indices = torch.from_numpy(y)    			 # Final Sampled label indexs
+	indices = torch.from_numpy(t3)    			 # Final Sampled label indexs
 	y_sampled = torch.index_select(y, 1, indices)  #indexes the input tensor along column using the entries in indices
 	
 	# Sampling the Label matrix per batch done!
