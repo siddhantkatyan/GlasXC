@@ -179,11 +179,17 @@ for epoch in range(args.epochs):
         print(type(decoder_weight_mat[1,1]))
 		# Build GLAS Regularizer	
 
+<
         v  = Glas_XC.decode_output(reg_fp)    # Label Embedding Matrix for mini-batch
         print("Size of output decoder is : ", v.size())
 
         V  = torch.mm(v, v.t())               # co-occurence in the latent/embedded space
         A  = torch.mm(y, y.t())  			  # models co-occurence of labels
+
+        v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
+        V  = torch.mm(v.t(), v)               # co-occurence in the latent/embedded space
+        A  = torch.mm(y.t(), y)  			  # models co-occurence of labels
+
         Z  = torch.diag(A)  #+ epsilon        # returns the diagoan in vector form
         Z  = torch.diag(Z)       			  # creates the diagonal from the vector
         #AZ = torch.add(torch.mm(A, torch.pinverse(Z)), torch.mm(torch.pinverse(Z), A)) # to be used for Eurlex4k
