@@ -33,7 +33,7 @@ device='cpu' # 'cuda' for GPU, 'cpu' for CPU
 epochs=10
 
 # This are static, feel free to change them as required
-batch_size=32 # 4096 for AmazonCat-13K as given in paper(Glas)
+batch_size=1024 # 4096 for AmazonCat-13K as given in paper(Glas)
 inp_ae_wgt=0
 otp_ae_wgt=0
 seed=1729
@@ -45,6 +45,7 @@ init_scheme="xavier_uniform"
 for k in ${all_k[*]};
     do
        # added -u for printing to SLURM output file
+       
         python -u train_GlasXC.py --data_root $data_root --dataset_info "$setup_path/$dataset_info" \
                                  --input_encoder_cfg "$setup_path/$inp_enc_cfg" --input_decoder_cfg "$setup_path/$inp_dec_cfg" \
                                  --output_encoder_cfg "$setup_path/$otp_enc_cfg" --output_decoder_cfg "$setup_path/$otp_dec_cfg" \

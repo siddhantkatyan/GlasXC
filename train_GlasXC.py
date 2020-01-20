@@ -3,6 +3,7 @@ from functools import partial
 from matplotlib import pyplot as plt
 from matplotlib import gridspec as gs
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from operator import itemgetter
 
 from XMC.GlasXC import GlasXC
 from XMC.loaders import LibSVMLoader
@@ -14,6 +15,7 @@ import yaml
 import torch
 import numpy as np
 import torch.nn.functional as F
+
 
 
 def weights_init(mdl, scheme):
@@ -174,47 +176,95 @@ for epoch in range(args.epochs):
 
         optimizer.zero_grad()
 
-        inp_ae_fp, out_ae_fp, reg_fp, decoder_weight_mat = Glas_XC.forward(x, y)
+        inp_ae_fp, out_ae_fp, reg_fp, V = Glas_XC.forward(x, y)
         #print("Size of reg_fp is : ", reg_fp.size())
         #print("Size of decoder weight is : ", decoder_weight_mat.size())
-        print(type(decoder_weight_mat[1,1]))
-		# Build GLAS Regularizer	
+        #print(type(decoder_weight_mat[1,1]))
+		
 
+        # Build GLAS Regularizer	
 
-        v  = Glas_XC.decode_output(reg_fp)    # Label Embedding Matrix for mini-batch
-        print("Size of output decoder is : ", v.size())
+        # Sampling the Label Matrix - Start
+        #print("Size of y is : ", y.size())
+        count_labels = np.sum(np.asmatrix(y),axis=1)
+        #print(count_labels)
+        label_dict = {}
 
-        V  = torch.mm(v, v.t())               # co-occurence in the latent/embedded space
-        A  = torch.mm(y, y.t())  			  # models co-occurence of labels
+        for i in range(y.size(0)):
+            label_dict[i] = int(count_labels[i]);
 
+        #print(label_dict)
 
-        inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
+        label_dict_sorted = sorted(label_dict.items(), key = itemgetter(1))
+        #{k: v for k, v in sorted(label_dict.items(), key=lambda item: item[1])}
+        #print(label_dict_sorted)
+        #print(label_dict_sorted[3][1])
 
-	# Build GLAS Regularizer
-	
-	# Sampling the Label Matrix - Start
+        sorted_samples = torch.empty((y.size(0)),dtype=torch.int)
+        for i in range(y.size(0)):
+            sorted_samples[i] = label_dict_sorted[i][0]
 
-	valid_idx = torch.nonzero(y)  # get all the non zeros
-	t = torch.flatten(valid_idx)  # flatten the tuple into a list tensor	
-	t1 = t[1::2].unique()  	      # index of non zero column is at odd postion elements, get the unique column indices
-	t2 = t1.numpy()		      # convert tensor to numpy array for uniform random sampling, no counterpart function in Pytorch
-	t3 = numpy.random.choice(t2, batch_size, replace=False)  # random sampling values of array without replacement
-	indices = torch.from_numpy(t3)    			 # Final Sampled label indexs
-	y_sampled = torch.index_select(y, 1, indices)  #indexes the input tensor along column using the entries in indices
-	
-	# Sampling the Label matrix per batch done!
-	
+        #print(sorted_samples)
+        sampled_labels = []
+        for i in range(y.size(0)):
+            goto_next = False
+            while(not goto_next):
+                ty = y[sorted_samples[i],:].numpy()
+                #print(ty)
+                valid_idx = np.nonzero(ty)  # get all the non zeros
+                #print("Valid index is : ",valid_idx)
+                #print("First value of valid index is : ",valid_idx[0])
+                #t = torch.flatten(valid_idx)  # flatten the tuple into a list tensor    
+                #t1 = t[1::2]
+                #t2 = t1.numpy()           # convert tensor to numpy array for uniform random sampling, no counterpart function in Pytorch
+                rand_idx = np.random.randint(len(valid_idx[0]))
+                #sampled_label = np.array([np.random.choice(valid_idx[0][idx],1) for idx in range(len(valid_idx[0]))])
+                sampled_element = valid_idx[0][rand_idx]
+                #print("i",i," Sampled element is : ",sampled_element)
+                #sampled_labels.append()
+                if sampled_element not in sampled_labels:
+                    sampled_labels.append(sampled_element)
+                    goto_next = True
 
-        v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
-        V  = torch.mm(v.t(), v)               # co-occurence in the latent/embedded space
-        A  = torch.mm(y.t(), y)  			  # models co-occurence of labels
+        #sampled_labels = np.asarray(sampled_labels)            
+        #print("sampled_labels : ", sampled_labels)
+        #print("size of sampled_labels : ", len(sampled_labels))
+        #print("size of unique sampled_labels : ", len(sampled_labels.unique()))
+
+        sampled_labels = torch.from_numpy(np.asarray(sampled_labels))
+        y_sampled = torch.index_select(y, 1, sampled_labels)  #indexes the input tensor along column using the entries in indices
+        
+
+        #print("Size of sampled y is : ", y_sampled.size())
+        print("Rank of sampled y is : ", torch.matrix_rank(y_sampled))
+        #print(np.sum(np.asmatrix(y_sampled),axis=0))
+        #print("Size of output decoder  matrix is : ", V.size())
+        
+        VtV  = torch.mm(V.t(), V)               # Label Embedding Matrix
+        A  = torch.mm(y_sampled.t(), y_sampled)  			  # models co-occurence of labels
+        #print(torch.nonzero(A[2,:]))
+        #print("Size of yty is : ", A.size())
+        #print(np.sum(np.asmatrix(A),axis=1))
+        print(torch.matrix_rank(A))
+        #inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
+
+        # Build GLAS Regularizer
+        
+        
+        
+        # Sampling the Label matrix per batch done!
+    
+
+        #v  = Glas_XC.encode_output(y)    # Label Embedding Matrix for mini-batch
+        #V  = torch.mm(v.t(), v)               # co-occurence in the latent/embedded space
+        #A  = torch.mm(y.t(), y)               # models co-occurence of labels
 
         Z  = torch.diag(A)  #+ epsilon        # returns the diagoan in vector form
-        Z  = torch.diag(Z)       			  # creates the diagonal from the vector
+        Z  = torch.diag(Z)                    # creates the diagonal from the vector
         #AZ = torch.add(torch.mm(A, torch.pinverse(Z)), torch.mm(torch.pinverse(Z), A)) # to be used for Eurlex4k
         AZ = torch.add(torch.mm(A, torch.inverse(Z)), torch.mm(torch.inverse(Z), A))
-        M  = mean*AZ            			  # Mean of conditional frequencies of label
-        g  = torch.sub(V, M)    			  	
+        M  = mean*AZ                          # Mean of conditional frequencies of label
+        g  = torch.sub(V, M)                    
         gl = torch.norm(g, p='fro')
         loss_glas = div * gl*gl                  # final loss of glas regularizer 
 

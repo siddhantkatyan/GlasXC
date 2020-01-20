@@ -154,7 +154,7 @@ class GlasXC(nn.Module):
             x : This is a tensor of output encodings (batched)
 
         Returns:
-            Weight matrix of the decode layer
+            Weight matrix of the decode layer of dimensions L x d
         """
         """
         for name, module in self.output_decoder.named_modules():
@@ -172,7 +172,7 @@ class GlasXC(nn.Module):
                 #print("Layer weight size : ",layer.weight.size())
                 decode_weight_matrix = layer.weight
 
-        return decode_weight_matrix
+        return decode_weight_matrix.t()
 
 
 
