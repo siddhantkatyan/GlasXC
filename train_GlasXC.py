@@ -174,6 +174,20 @@ for epoch in range(args.epochs):
         #print("In epoch ",epoch," size of x is ",x.size())
         #print("In epoch ",epoch," size of y is ",y.size())
 
+        y_sum = np.sum(np.asmatrix(y.numpy()),axis=1)
+        for s in range(y_sum.size):
+            if y_sum[s] == 0:
+                #print("idx : ",s, " sum : ", y_sum[s])
+                #y[s] = torch.from_numpy(np.copy(y[s-1].numpy())) # if some sample has no labels, copy the previous sample
+                y[s][np.random.randint(y.size(1))] = 1 # setting a random label as 1
+
+        """
+        y_sum = np.sum(np.asmatrix(y.numpy()),axis=1)
+        for s in range(y_sum.size):
+            if y_sum[s] == 0:
+                print("idx : ",s, " sum : ", y_sum[s])
+        """
+
         optimizer.zero_grad()
 
         inp_ae_fp, out_ae_fp, reg_fp, V = Glas_XC.forward(x, y)
@@ -207,24 +221,31 @@ for epoch in range(args.epochs):
         #print(sorted_samples)
         sampled_labels = []
         for i in range(y.size(0)):
+            if len(sampled_labels) >= args.batch_size:
+                break
             goto_next = False
-            while(not goto_next):
-                ty = y[sorted_samples[i],:].numpy()
-                #print(ty)
-                valid_idx = np.nonzero(ty)  # get all the non zeros
-                #print("Valid index is : ",valid_idx)
-                #print("First value of valid index is : ",valid_idx[0])
-                #t = torch.flatten(valid_idx)  # flatten the tuple into a list tensor    
-                #t1 = t[1::2]
-                #t2 = t1.numpy()           # convert tensor to numpy array for uniform random sampling, no counterpart function in Pytorch
+            #while(not (goto_next)):
+            ty = y[sorted_samples[i],:].numpy()
+            #print(ty)
+            valid_idx = np.nonzero(ty)  # get all the non zeros
+            #print("Valid index is : ",valid_idx)
+            #print("First value of valid index is : ",valid_idx[0])
+            #t = torch.flatten(valid_idx)  # flatten the tuple into a list tensor    
+            #print("i : ", i ,"len valid_idx : ", len(valid_idx[0]), " len(sampled_labels) : ", len(sampled_labels) )
+            s = 0
+            while(not(goto_next) and s < len(valid_idx[0])) :
                 rand_idx = np.random.randint(len(valid_idx[0]))
                 #sampled_label = np.array([np.random.choice(valid_idx[0][idx],1) for idx in range(len(valid_idx[0]))])
                 sampled_element = valid_idx[0][rand_idx]
                 #print("i",i," Sampled element is : ",sampled_element)
                 #sampled_labels.append()
+                #print("sampled_element : ", sampled_element)
+                s += 1;
                 if sampled_element not in sampled_labels:
                     sampled_labels.append(sampled_element)
-                    goto_next = True
+                    s = len(valid_idx[0]) # set while loop condition
+                    goto_next = True # set while loopp condition
+            #print("sampled_labels[",len(sampled_labels)-1,"] :", sampled_labels[len(sampled_labels)-1], " len(sampled_labels) : ", len(sampled_labels))
 
         #sampled_labels = np.asarray(sampled_labels)            
         #print("sampled_labels : ", sampled_labels)
@@ -234,18 +255,23 @@ for epoch in range(args.epochs):
         sampled_labels = torch.from_numpy(np.asarray(sampled_labels))
         y_sampled = torch.index_select(y, 1, sampled_labels)  #indexes the input tensor along column using the entries in indices
         
+        #sample_sum = np.sum(np.asmatrix(y_sampled.numpy()),axis=1)
+        #for s in range(sample_sum.size):
+            #if sample_sum[s] == 0:
+            #print("s : ",s," sample_sum[s",s,"] = ", sample_sum[s])
 
         #print("Size of sampled y is : ", y_sampled.size())
-        print("Rank of sampled y is : ", torch.matrix_rank(y_sampled))
+        #print("Rank of sampled y is : ", torch.matrix_rank(y_sampled))
         #print(np.sum(np.asmatrix(y_sampled),axis=0))
         #print("Size of output decoder  matrix is : ", V.size())
         
-        VtV  = torch.mm(V.t(), V)               # Label Embedding Matrix
+        V_sampled = torch.index_select(V, 1, sampled_labels)  #indexes the input tensor along column using the entries in indices
+        VtV  = torch.mm(V_sampled.t(), V_sampled)               # Label Embedding Matrix
         A  = torch.mm(y_sampled.t(), y_sampled)  			  # models co-occurence of labels
         #print(torch.nonzero(A[2,:]))
         #print("Size of yty is : ", A.size())
         #print(np.sum(np.asmatrix(A),axis=1))
-        print(torch.matrix_rank(A))
+        #print(torch.matrix_rank(A))
         #inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
 
         # Build GLAS Regularizer
@@ -264,11 +290,12 @@ for epoch in range(args.epochs):
         #AZ = torch.add(torch.mm(A, torch.pinverse(Z)), torch.mm(torch.pinverse(Z), A)) # to be used for Eurlex4k
         AZ = torch.add(torch.mm(A, torch.inverse(Z)), torch.mm(torch.inverse(Z), A))
         M  = mean*AZ                          # Mean of conditional frequencies of label
-        g  = torch.sub(V, M)                    
+        g  = torch.sub(VtV, M)                    
         gl = torch.norm(g, p='fro')
         loss_glas = div * gl*gl                  # final loss of glas regularizer 
 
         #print("loss glas regularizer created")
+        #print("Epoch : ", epoch)
 
        # print("The size of encoded output label is")
        # print(V.size())
@@ -281,10 +308,10 @@ for epoch in range(args.epochs):
         # The first two are weighted using ALPHA_INPUT and ALPHA_OUTPUT.
 
         #loss_class = F.multilabel_margin_loss(reg_fp, y)
-        loss_class = F.binary_cross_entropy(reg_fp, y) + LAMBDA * loss_glas
+        loss_class = F.binary_cross_entropy(reg_fp, y) #+ LAMBDA * loss_glas
         net_loss = loss_class
         net_loss.backward() 
-        print("Backprop for epoch ", epoch, " done")
+        #print("Backprop for epoch ", epoch, " done")
         optimizer.step()
         all_iters += 1
         if all_iters % args.interval == 0:
