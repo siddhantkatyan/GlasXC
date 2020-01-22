@@ -192,7 +192,8 @@ for epoch in range(args.epochs):
 
         inp_ae_fp, out_ae_fp, reg_fp, V = Glas_XC.forward(x, y)
         #print("Size of reg_fp is : ", reg_fp.size())
-        #print("Size of decoder weight is : ", decoder_weight_mat.size())
+        #print("Size of decoder weight is : ", V.size())
+        #print("The first two columns of decoder matrix is :", V[:, :2])
         #print(type(decoder_weight_mat[1,1]))
 		
 
@@ -324,8 +325,9 @@ for epoch in range(args.epochs):
     actual_y = []
     for x, y in iter(train_data_loader):
         x = x.to(device=cur_device, dtype=torch.float)
-
-        pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
+        y = y.to(device=cur_device, dtype=torch.float)
+       # pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
+       	pred_y.append(reg_fp.detach().cpu().numpy())
         actual_y.append(y.numpy())
 
     pred_y = np.vstack(pred_y)
