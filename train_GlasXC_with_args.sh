@@ -15,8 +15,8 @@
 #    exit 1
 #fi
 
-setup_path="/home/siddhant.katyan/XML/GlasXC/setups/Eurlex"
-data_root="/home/siddhant.katyan/XML/data/Eurlex"
+setup_path="/home/shrutimoy.das/GlasXC/setups/Eurlex"
+data_root="/home/shrutimoy.das/data/Eurlex"
 dataset_info="dataset_info.yml"
 inp_enc_cfg="input_encoder_cfg.yml"
 inp_dec_cfg="input_decoder_cfg.yml"
@@ -30,7 +30,7 @@ opt_cfg="opt.yml"
 # device -> PyTorch device string
 # epochs -> Number of epochs
 device='cpu' # 'cuda' for GPU, 'cpu' for CPU
-epochs=200
+epochs=20
 
 # This are static, feel free to change them as required
 batch_size=32 # 4096 for AmazonCat-13K as given in paper(Glas) #TAKE BATCH_SIZE=32 FOR ERROR FREE EXECUTION

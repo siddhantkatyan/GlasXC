@@ -1,13 +1,6 @@
 - name: Linear
   kwargs:
-    in_features: 12000
-    out_features: 3000
-
-- name: ReLU
-
-- name: Linear
-  kwargs:
-    in_features: 3000
+    in_features: 1024
     out_features: 1024
 
-- name: Sigmoid
+- name: ReLU
