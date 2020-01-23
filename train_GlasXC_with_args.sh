@@ -30,7 +30,7 @@ opt_cfg="opt.yml"
 # device -> PyTorch device string
 # epochs -> Number of epochs
 device='cpu' # 'cuda' for GPU, 'cpu' for CPU
-epochs=3
+epochs=200
 
 # This are static, feel free to change them as required
 batch_size=32 # 4096 for AmazonCat-13K as given in paper(Glas) #TAKE BATCH_SIZE=32 FOR ERROR FREE EXECUTION

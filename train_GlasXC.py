@@ -15,6 +15,7 @@ import yaml
 import torch
 import numpy as np
 import torch.nn.functional as F
+import torch.nn as nn
 
 
 
@@ -274,7 +275,7 @@ for epoch in range(args.epochs):
         #print(np.sum(np.asmatrix(A),axis=1))
         #print(torch.matrix_rank(A))
         #inp_ae_fp, out_ae_fp, reg_fp = Glas_XC.forward(x, y)
-
+      #  reg_fip = torch.index_select(reg_fp, 1, sampled_labels)
         # Build GLAS Regularizer
         
         
@@ -301,15 +302,24 @@ for epoch in range(args.epochs):
        # print("The size of encoded output label is")
        # print(V.size())
 
+       #	reg_fp = reg_fp.numpy()
 
+       # for i in range(0, args.batch_size):
+        #	reg_fp[i] = [1 if ele > 0.5 else 0 for ele in reg_fp[i]]
+       
         # This is a custom that we will be using to backprop. It has three components:
         # 1. Reconstruction error of input
         # 2. Reconstruction error of output
         # 3. Classification (Binary cross entropy) of input-output
         # The first two are weighted using ALPHA_INPUT and ALPHA_OUTPUT.
+        #print("The size of the reg_fp matrix is \n ", reg_fp.size())
+        #print("The size of the y matrix is \n", y.size())
 
-        #loss_class = F.multilabel_margin_loss(reg_fp, y)
-        loss_class = F.binary_cross_entropy(reg_fp, y) #+ LAMBDA * loss_glas
+       # print("The first two rows of prediction score reg_fp matrix is :", reg_fp[:2, :])
+       # loss_class = F.multilabel_margin_loss(reg_fp, y) + LAMBDA * loss_glas
+       #	th = torch.Tensor([0.5])
+       #	reg_fp1 = (reg_fp > th).float()*1
+        loss_class = F.binary_cross_entropy(reg_fp, y) + LAMBDA * loss_glas
         net_loss = loss_class
         net_loss.backward() 
         #print("Backprop for epoch ", epoch, " done")
@@ -326,12 +336,13 @@ for epoch in range(args.epochs):
     for x, y in iter(train_data_loader):
         x = x.to(device=cur_device, dtype=torch.float)
         y = y.to(device=cur_device, dtype=torch.float)
-       # pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
-       	pred_y.append(reg_fp.detach().cpu().numpy())
+        pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
         actual_y.append(y.numpy())
 
     pred_y = np.vstack(pred_y)
+   # print("The first few entries of pred_y - ", pred_y[0:5])
     actual_y = np.vstack(actual_y)
+   # print("The first few entries of actual_y - ", actual_y[0:5])
     p_at_k = [precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
     ndcg_at_k = [ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
     print("{0} / {1} :: Precision at {2}: {3}\tNDCG at {2}: {4}"

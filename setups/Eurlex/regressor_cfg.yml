@@ -3,5 +3,5 @@
     in_features: 150
     out_features: 150
 
-- name: Sigmoid
+- name: ReLU
 

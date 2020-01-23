@@ -4,4 +4,6 @@
     out_features: 3993
 
 
-- name: Sigmoid
+- name: Softmax
+
+   
