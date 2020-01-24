@@ -172,7 +172,7 @@ for epoch in range(args.epochs):
         y = y.to(device=cur_device, dtype=torch.float)
         cur_no += x.size(0)
         div = 1/math.pow(y.size(1),2) # different for different datasets
-        #print("In epoch ",epoch," size of x is ",x.size())
+        print("In epoch ",epoch," size of x is ",x.size())
         #print("In epoch ",epoch," size of y is ",y.size())
 
         y_sum = np.sum(np.asmatrix(y.numpy()),axis=1)

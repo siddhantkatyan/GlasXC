@@ -1,15 +1,6 @@
 - name: Linear
   kwargs:
     in_features: 135909
-    out_features: 50000
-
-- name: ReLU
-  kwargs:
-    inplace: True
-
-- name: Linear
-  kwargs:
-    in_features: 50000
     out_features: 10000
 
 - name: ReLU
@@ -19,4 +10,7 @@
 - name: Linear
   kwargs:
     in_features: 10000
-    out_features: 5000
+    out_features: 1024
+
+- name: ReLU
+  

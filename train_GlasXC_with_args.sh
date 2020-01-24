@@ -15,8 +15,8 @@
 #    exit 1
 #fi
 
-setup_path="/home/shrutimoy.das/GlasXC/setups/Eurlex"
-data_root="/home/shrutimoy.das/data/Eurlex"
+setup_path="/home/shrutimoy.das/GlasXC/setups/Amazon"
+data_root="/home/shrutimoy.das//Extreme_Classification/Dataset/Amazon"
 dataset_info="dataset_info.yml"
 inp_enc_cfg="input_encoder_cfg.yml"
 inp_dec_cfg="input_decoder_cfg.yml"
@@ -30,10 +30,10 @@ opt_cfg="opt.yml"
 # device -> PyTorch device string
 # epochs -> Number of epochs
 device='cpu' # 'cuda' for GPU, 'cpu' for CPU
-epochs=20
+epochs=10
 
 # This are static, feel free to change them as required
-batch_size=32 # 4096 for AmazonCat-13K as given in paper(Glas) #TAKE BATCH_SIZE=32 FOR ERROR FREE EXECUTION
+batch_size=512 # 4096 for AmazonCat-13K as given in paper(Glas) #TAKE BATCH_SIZE=32 FOR ERROR FREE EXECUTION
 inp_ae_wgt=0
 otp_ae_wgt=0
 seed=1729
