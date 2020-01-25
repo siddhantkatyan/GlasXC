@@ -145,7 +145,7 @@ train_data_loader = torch.utils.data.DataLoader(train_loader, batch_size=args.ba
 if USE_TEST_DSET:
     test_file = os.path.join(args.data_root, dset_opts['test_filename'])
     test_loader = LibSVMLoader(test_file, dset_opts['test_opts'])
-    test_data_loader = torch.utils.data.DataLoader(test_loader, batch_size=1000,
+    test_data_loader = torch.utils.data.DataLoader(test_loader, batch_size=args.batch_size,
                                                    shuffle=False)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Train your model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -172,7 +172,7 @@ for epoch in range(args.epochs):
         y = y.to(device=cur_device, dtype=torch.float)
         cur_no += x.size(0)
         div = 1/math.pow(y.size(1),2) # different for different datasets
-        print("In epoch ",epoch," size of x is ",x.size())
+        #print("In epoch ",epoch," size of x is ",x.size())
         #print("In epoch ",epoch," size of y is ",y.size())
 
         y_sum = np.sum(np.asmatrix(y.numpy()),axis=1)
@@ -331,24 +331,49 @@ for epoch in range(args.epochs):
         
         CLASS_LOSS.append(loss_class.item())
 
-    pred_y = []
-    actual_y = []
+    #pred_y = []
+    #actual_y = []
+    p_at_k = []  #np.empty((1,train_loader.classes.shape[1]))
+    ndcg_at_k = [] #np.empty((1,train_loader.classes.shape[1]))
     for x, y in iter(train_data_loader):
         x = x.to(device=cur_device, dtype=torch.float)
         y = y.to(device=cur_device, dtype=torch.float)
-        pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
-        actual_y.append(y.numpy())
+        #pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
+        #actual_y.append(y.numpy())
+        pred_y = Glas_XC.predict(x).detach().cpu().numpy()
+        actual_y = y.numpy()
+        p_at_k.append([precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))])
+        ndcg_at_k.append([ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))])
+        #print(len(p_at_k[0]))    
+        #print(len(ndcg_at_k[0]))
 
+    """  
     pred_y = np.vstack(pred_y)
-   # print("The first few entries of pred_y - ", pred_y[0:5])
+    print("The first few entries of pred_y - ", pred_y[0:10])
     actual_y = np.vstack(actual_y)
-   # print("The first few entries of actual_y - ", actual_y[0:5])
-    p_at_k = [precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
-    ndcg_at_k = [ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
+    print("The first few entries of actual_y - ", actual_y[0:10])
+    print(type(pred_y))
+    print(type(actual_y))
+    print(pred_y.shape)
+    print(actual_y.shape)
+    """
+
+    #p_at_k = [precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
+    #ndcg_at_k = [ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
+    #p_at_k_all = np.squeeze(np.asarray(p_at_k)).flatten('C')
+    #ndcg_at_k_all = np.squeeze(np.asarray(ndcg_at_k)).flatten('C')
+    p_at_k_all = np.hstack(p_at_k)
+    p_at_k_all = p_at_k_all.reshape(1,train_loader.classes.shape[0])
+    ndcg_at_k_all = np.hstack(ndcg_at_k)
+    ndcg_at_k_all = ndcg_at_k_all.reshape(1,train_loader.classes.shape[0])
+    #print(len(p_at_k_all))
+    #print("p_at_k_all[0] = ", p_at_k_all[0])
+    #print(len(ndcg_at_k_all))
+    #print("ndcg_at_k_all[0] = ", ndcg_at_k_all[0])
     print("{0} / {1} :: Precision at {2}: {3}\tNDCG at {2}: {4}"
-          .format(epoch, args.epochs, K, np.mean(p_at_k), np.mean(ndcg_at_k)))
-    AVG_P_AT_K.append(np.mean(p_at_k))
-    AVG_NDCG_AT_K.append(np.mean(ndcg_at_k))
+          .format(epoch, args.epochs, K, np.mean(p_at_k_all), np.mean(ndcg_at_k_all)))
+    AVG_P_AT_K.append(np.mean(p_at_k_all))
+    AVG_NDCG_AT_K.append(np.mean(ndcg_at_k_all))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Plot graphs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if args.plot:
@@ -395,17 +420,26 @@ if args.save_model is not None:
 
 if USE_TEST_DSET:
     print("Test set characteristics")
-    pred_y = []
-    actual_y = []
+    #pred_y = []
+    #actual_y = []
+    p_at_k = []
+    ndcg_at_k = []
     for x, y in iter(test_data_loader):
         x = x.to(device=cur_device, dtype=torch.float)
+        #pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
+        #actual_y.append(y.numpy())
+        pred_y = Glas_XC.predict(x).detach().cpu().numpy()
+        actual_y = y.numpy()
+        p_at_k.append(precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y)))
+        ndcg_at_k.append(ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y)))
 
-        pred_y.append(Glas_XC.predict(x).detach().cpu().numpy())
-        actual_y.append(y.numpy())
-
-    pred_y = np.vstack(pred_y)
-    actual_y = np.vstack(actual_y)
-    p_at_k = [precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
-    ndcg_at_k = [ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
+    #pred_y = np.vstack(pred_y)
+    #actual_y = np.vstack(actual_y)
+    #p_at_k = [precision_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
+    #ndcg_at_k = [ndcg_score_at_k(actual_y[i], pred_y[i], K) for i in range(len(pred_y))]
+    p_at_k_all = np.hstack(p_at_k)
+    p_at_k_all = p_at_k_all.reshape(1,test_loader.classes.shape[0])
+    ndcg_at_k_all = np.hstack(ndcg_at_k)
+    ndcg_at_k_all = ndcg_at_k_all.reshape(1,test_loader.classes.shape[0])
     print("Precision at {2}: {3}\tNDCG at {2}: {4}"
           .format(epoch, args.epochs, K, np.mean(p_at_k), np.mean(ndcg_at_k)))
